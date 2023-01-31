@@ -1,0 +1,49 @@
+name: 'Daily'
+
+on:
+  schedule:
+    - cron: '0 20 * * *'
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - id: date
+      name: Set output
+      run: echo "TOMORROW=$(date "+%Y-%m-%d" --date "tomorrow")" >> $GITHUB_OUTPUT
+
+    - name: Duplicate file
+      run: |
+        tomorrow="${{ steps.date.outputs.TOMORROW }}"
+        cat <<EOF > "./contents/$tomorrow.md"
+        ---
+        title: "$tomorrow"
+        description: ""
+        pubDate: "$tomorrow"
+        image:
+          alt: ""
+          src: ""
+        tags: []
+        ---
+
+        ## Do something
+        EOF
+
+    - name: Commit & Push
+      if: success()
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+
+        git add "${{ steps.date.outputs.TOMORROW }}.md"
+        git commit -m "Successfully duplicated files for tomorrow."
+        git push
