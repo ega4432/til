@@ -1,0 +1,32 @@
+name: create PR
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: echo "sample!" > ./contents/sample.md
+
+      - name: Create Pull Request
+        id: creact-pr
+        uses: peter-evans/create-pull-request@v4
+        with:
+          title: "Automatically create PR"
+          branch: auto-pr
+          body: |
+            # title
+            
+            automatically create PR.
+          
+      - name: Check outputs
+        if: ${{ steps.create-pr.outputs.pull-request-number }}
+        run: |
+          echo "Pull Request Number - ${{ steps.create-pr.outputs.pull-request-number }}"
+          echo "Pull Request URL - ${{ steps.create-pr.outputs.pull-request-url }}"
