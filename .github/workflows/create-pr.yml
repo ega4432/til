@@ -18,6 +18,7 @@ jobs:
         id: creact-pr
         uses: peter-evans/create-pull-request@v4
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           title: "Automatically create PR"
           branch: auto-pr
           body: |
